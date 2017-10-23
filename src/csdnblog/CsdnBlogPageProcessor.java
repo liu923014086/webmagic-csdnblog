@@ -1,6 +1,7 @@
 package csdnblog;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
@@ -22,6 +23,8 @@ public class CsdnBlogPageProcessor implements PageProcessor {
 	private static String username = "qq598535550";// 设置csdn用户名
 	private static int size = 0;// 共抓取到的文章数量
 
+	private AtomicInteger processNumber = new AtomicInteger(0);
+
 	// 抓取网站的相关配置，包括：编码、抓取间隔、重试次数等
 	private Site site = Site.me().setRetryTimes(3).setSleepTime(1000);
 
@@ -35,6 +38,7 @@ public class CsdnBlogPageProcessor implements PageProcessor {
 	public void process(Page page) {
 		// 列表页
 		if (!page.getUrl().regex("http://blog\\.csdn\\.net/" + username + "/article/details/\\d+").match()) {
+			System.out.println("列表页访问 = [" + processNumber.incrementAndGet() + "]");
 			// 添加所有文章页
 			page.addTargetRequests(page.getHtml().xpath("//div[@id='article_list']").links()// 限定文章列表获取区域
 					.regex("/" + username + "/article/details/\\d+")
@@ -48,6 +52,7 @@ public class CsdnBlogPageProcessor implements PageProcessor {
 			// 文章页
 		} else {
 			size++;// 文章数量加1
+			System.out.println("size = [" + size + "]");
 			// 用CsdnBlog类来存抓取到的数据，方便存入数据库
 			CsdnBlog csdnBlog = new CsdnBlog();
 			// 设置编号
@@ -55,24 +60,25 @@ public class CsdnBlogPageProcessor implements PageProcessor {
 					page.getUrl().regex("http://blog\\.csdn\\.net/" + username + "/article/details/(\\d+)").get()));
 			// 设置标题
 			csdnBlog.setTitle(
-					page.getHtml().xpath("//div[@class='article_title']//span[@class='link_title']/a/text()").get());
+					page.getHtml().xpath("/html/body/div/main/article/h1/text()").get());
 			// 设置日期
 			csdnBlog.setDate(
-					page.getHtml().xpath("//div[@class='article_r']/span[@class='link_postdate']/text()").get());
+					page.getHtml().xpath("/html/body/div/main/article/div[1]/div/span[2]/text()").get());
 			// 设置标签（可以有多个，用,来分割）
-			csdnBlog.setTags(listToString(page.getHtml()
+			/*csdnBlog.setTags(listToString(page.getHtml()
 					.xpath("//div[@class='article_l']/span[@class='link_categories']/a/allText()").all()));
 			// 设置类别（可以有多个，用,来分割）
 			csdnBlog.setCategory(
-					listToString(page.getHtml().xpath("//div[@class='category_r']/label/span/text()").all()));
+					listToString(page.getHtml().xpath("//div[@class='category_r']/label/span/text()").all()));*/
 			// 设置阅读人数
-			csdnBlog.setView(Integer.parseInt(page.getHtml().xpath("//div[@class='article_r']/span[@class='link_view']")
-					.regex("(\\d+)人阅读").get()));
+			csdnBlog.setView(Integer.parseInt(page.getHtml().xpath("/html/body/div/main/article/div/ul/li/button/span/text()")
+					.get()));
 			// 设置评论人数
-			csdnBlog.setComments(Integer.parseInt(page.getHtml()
-					.xpath("//div[@class='article_r']/span[@class='link_comments']").regex("\\((\\d+)\\)").get()));
+			/*csdnBlog.setComments(Integer.parseInt(page.getHtml()
+					.xpath("//div[@class='article_r']/span[@class='link_comments']").regex("\\((\\d+)\\)").get()));*/
 			// 设置是否原创
-			csdnBlog.setCopyright(page.getHtml().regex("bog_copyright").match() ? 1 : 0);
+			csdnBlog.setCopyright(page.getHtml().regex("article_copyright").match() ? 1 : 0);
+			System.out.println("csdnBlog = [" + csdnBlog + "]");
 			// 把对象存入数据库
 			new CsdnBlogDao().add(csdnBlog);
 			// 把对象输出控制台

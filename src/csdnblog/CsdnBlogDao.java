@@ -15,7 +15,7 @@ public class CsdnBlogDao {
 	public CsdnBlogDao() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			String url = "jdbc:mysql://localhost:3307/webmagic?user=root&password=";
+			String url = "jdbc:mysql://localhost:3306/webmagic?user=root&password=1234&useUnicode=true&characterEncoding=utf-8";
 			conn = DriverManager.getConnection(url);
 			stmt = conn.createStatement();
 		} catch (ClassNotFoundException e) {
@@ -26,8 +26,16 @@ public class CsdnBlogDao {
 
 	}
 
+	public static void main(String[] args) {
+		CsdnBlog csdnBlog = new CsdnBlog();
+		csdnBlog.setCategory("category");
+		csdnBlog.setTitle("中文测试");
+		new CsdnBlogDao().add(csdnBlog);
+	}
+
 	public int add(CsdnBlog csdnBlog) {
 		try {
+			System.out.println("开始保存 = [" + csdnBlog + "]");
 			String sql = "INSERT INTO `webmagic`.`csdnblog` (`id`, `title`, `date`, `tags`, `category`, `view`, `comments`, `copyright`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, csdnBlog.getId());
