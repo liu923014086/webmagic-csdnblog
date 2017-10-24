@@ -33,60 +33,36 @@ public class ImageProcessor implements PageProcessor {
 	// process是定制爬虫逻辑的核心接口，在这里编写抽取逻辑
 	public void process(Page page) {
 
-		if(page.getHtml().links().regex("http://www\\.zbjuran\\.com/mei/\\w+/\\d+/\\d+.html").match()){
+		/*if(page.getHtml().links().regex("http://www\\.zbjuran\\.com/mei/\\w+/\\d+/\\d+.html").match()){
 			List list = page.getHtml().xpath("/html/body/div/div/ul/li/div/div/b/a").links().all();
 			page.addTargetRequests(list);
 			System.out.println("page = [" + list.size() + "]");
-		}
-		/*// 列表页
-		if (!page.getUrl().regex("http://blog\\.csdn\\.net/" + username + "/article/details/\\d+").match()) {
-			System.out.println("列表页访问 = [" + processNumber.incrementAndGet() + "]");
-			// 添加所有文章页
-			page.addTargetRequests(page.getHtml().xpath("//div[@id='article_list']").links()// 限定文章列表获取区域
-					.regex("/" + username + "/article/details/\\d+")
-					.replace("/" + username + "/", "http://blog.csdn.net/" + username + "/")// 巧用替换给把相对url转换成绝对url
-					.all());
-			// 添加其他列表页
-			page.addTargetRequests(page.getHtml().xpath("//div[@id='papelist']").links()// 限定其他列表页获取区域
-					.regex("/" + username + "/article/list/\\d+")
-					.replace("/" + username + "/", "http://blog.csdn.net/" + username + "/")// 巧用替换给把相对url转换成绝对url
-					.all());
-			// 文章页
-		} else {
-			size++;// 文章数量加1
-			System.out.println("size = [" + size + "]");
-			// 用CsdnBlog类来存抓取到的数据，方便存入数据库
-			CsdnBlog csdnBlog = new CsdnBlog();
-			// 设置编号
-			csdnBlog.setId(Integer.parseInt(
-					page.getUrl().regex("http://blog\\.csdn\\.net/" + username + "/article/details/(\\d+)").get()));
-			// 设置标题
-			csdnBlog.setTitle(
-					page.getHtml().xpath("/html/body/div/main/article/h1/text()").get());
-			// 设置日期
-			csdnBlog.setDate(
-					page.getHtml().xpath("/html/body/div/main/article/div[1]/div/span[2]/text()").get());
-			// 设置标签（可以有多个，用,来分割）
-			*//*csdnBlog.setTags(listToString(page.getHtml()
-					.xpath("//div[@class='article_l']/span[@class='link_categories']/a/allText()").all()));
-			// 设置类别（可以有多个，用,来分割）
-			csdnBlog.setCategory(
-					listToString(page.getHtml().xpath("//div[@class='category_r']/label/span/text()").all()));*//*
-			// 设置阅读人数
-			csdnBlog.setView(Integer.parseInt(page.getHtml().xpath("/html/body/div/main/article/div/ul/li/button/span/text()")
-					.get()));
-			// 设置评论人数
-			*//*csdnBlog.setComments(Integer.parseInt(page.getHtml()
-					.xpath("//div[@class='article_r']/span[@class='link_comments']").regex("\\((\\d+)\\)").get()));*//*
-			// 设置是否原创
-			csdnBlog.setCopyright(page.getHtml().regex("article_copyright").match() ? 1 : 0);
-			System.out.println("csdnBlog = [" + csdnBlog + "]");
-			// 把对象存入数据库
-			new CsdnBlogDao().add(csdnBlog);
-			// 把对象输出控制台
-			System.out.println(csdnBlog);
 		}*/
+
+
+		List list = page.getHtml().links().regex("http://www\\.zbjuran\\.com/mei/.*").all();
+		page.addTargetRequests(list);
+
+        if(page.getUrl().regex("http://www\\.zbjuran\\.com/mei/\\w+/\\d+/\\d+.html").match()){
+            System.out.println("currentUrl = [" + page.getUrl().get() + "]");;
+           /* page.getHtml().xpath("//div[@class='page']").links()// 限定其他列表页获取区域
+                    .regex("\\d+_\\d+.html")
+                    .replace("/" + username + "/", "http://blog.csdn.net/" + username + "/")// 巧用替换给把相对url转换成绝对url
+                    .all()*/
+            List list1 = page.getHtml().xpath("//*[@class='picbox']/img/@src").all();///html/body/div[2]/div[4]/div[4]/div[4]/ul/li[1]/a/img
+            for(int i=0;i<list1.size();i++){
+                System.out.println("page = [" + list1.get(i) + "]");
+            }
+        }
+
 	}
+
+	public static String splitUrl(String url){
+
+
+
+
+    }
 
 	// 把list转换为string，用,分割
 	public static String listToString(List<String> stringList) {
