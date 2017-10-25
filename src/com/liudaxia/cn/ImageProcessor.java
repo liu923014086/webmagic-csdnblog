@@ -57,11 +57,15 @@ public class ImageProcessor implements PageProcessor {
 
 	}
 
-	public static String splitUrl(String url){
+	public static String splitUrlAndGetLastNumber(String url){
+        String[] strlist = url.split("/");
+        System.out.println("url = [" + strlist[strlist.length-1] + "]");;
+        return strlist[strlist.length-1];
 
+    }
 
-
-
+    public static void main(String[] args) {
+        splitUrl("http://www.zbjuran.com/mei/xinggan/201710/86528.html");
     }
 
 	// 把list转换为string，用,分割
@@ -82,7 +86,7 @@ public class ImageProcessor implements PageProcessor {
 		return result.toString();
 	}
 
-	public static void main(String[] args) {
+	public static void main1(String[] args) {
 		long startTime, endTime;
 		System.out.println("【爬虫开始】请耐心等待一大波数据到你碗里来...");
 		startTime = System.currentTimeMillis();
