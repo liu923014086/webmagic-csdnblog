@@ -43,13 +43,16 @@ public class ImageProcessor implements PageProcessor {
 		List list = page.getHtml().links().regex("http://www\\.zbjuran\\.com/mei/.*").all();
 		page.addTargetRequests(list);
 
-        if(page.getUrl().regex("http://www\\.zbjuran\\.com/mei/\\w+/\\d+/\\d+.html").match()){
-            System.out.println("currentUrl = [" + page.getUrl().get() + "]");;
+        if(page.getUrl().regex("http://www\\.zbjuran\\.com/mei/\\w+/\\d+/\\d+_?\\d+.html").match()){
+
+            String currentUrl = page.getUrl().get();
+            System.out.println("currentUrl = [" + currentUrl + "]");
+            String lastNum = splitUrlAndGetLastNumber(currentUrl);
            /* page.getHtml().xpath("//div[@class='page']").links()// 限定其他列表页获取区域
                     .regex("\\d+_\\d+.html")
                     .replace("/" + username + "/", "http://blog.csdn.net/" + username + "/")// 巧用替换给把相对url转换成绝对url
                     .all()*/
-            List list1 = page.getHtml().xpath("//*[@class='picbox']/img/@src").all();///html/body/div[2]/div[4]/div[4]/div[4]/ul/li[1]/a/img
+            List list1 = page.getHtml().xpath("//*[@id='"+lastNum+"']/img/@src").all();///html/body/div[2]/div[4]/div[4]/div[4]/ul/li[1]/a/img
             for(int i=0;i<list1.size();i++){
                 System.out.println("page = [" + list1.get(i) + "]");
             }
@@ -59,13 +62,15 @@ public class ImageProcessor implements PageProcessor {
 
 	public static String splitUrlAndGetLastNumber(String url){
         String[] strlist = url.split("/");
-        System.out.println("url = [" + strlist[strlist.length-1] + "]");;
-        return strlist[strlist.length-1];
+       // System.out.println("url = [" + strlist[strlist.length-1] + "]");
+        String lastNum = strlist[strlist.length-1].split("\\.")[0];
+        System.out.println("lastNum = [" + lastNum + "]");
+        return lastNum;
 
     }
 
-    public static void main(String[] args) {
-        splitUrl("http://www.zbjuran.com/mei/xinggan/201710/86528.html");
+    public static void main1(String[] args) {
+        splitUrlAndGetLastNumber("http://www.zbjuran.com/mei/xinggan/201710/86528.html");
     }
 
 	// 把list转换为string，用,分割
@@ -86,7 +91,7 @@ public class ImageProcessor implements PageProcessor {
 		return result.toString();
 	}
 
-	public static void main1(String[] args) {
+	public static void main(String[] args) {
 		long startTime, endTime;
 		System.out.println("【爬虫开始】请耐心等待一大波数据到你碗里来...");
 		startTime = System.currentTimeMillis();
