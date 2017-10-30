@@ -50,6 +50,7 @@ public class CsdnBlogPageProcessor implements PageProcessor {
 					.replace("/" + username + "/", "http://blog.csdn.net/" + username + "/")// 巧用替换给把相对url转换成绝对url
 					.all());
 			// 文章页
+            
 		} else {
 			size++;// 文章数量加1
 			System.out.println("size = [" + size + "]");
