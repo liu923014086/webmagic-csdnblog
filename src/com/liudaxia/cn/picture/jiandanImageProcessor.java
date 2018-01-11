@@ -4,7 +4,6 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
-import us.codecraft.webmagic.selector.Selectable;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * image图片爬虫
  * @author  liudaxia
  */
-public class ImageProcessor implements PageProcessor {
+public class jiandanImageProcessor implements PageProcessor {
 
 
 	private static AtomicInteger processNumber = new AtomicInteger(0);
@@ -23,31 +22,32 @@ public class ImageProcessor implements PageProcessor {
 
 	@Override
 	public Site getSite() {
-		return site;
+
+
+        site.addCookie("_ga","GA1.2.1508532935.1515670879");
+        site.addCookie("_gid","GA1.2.1472433383.1515670879");
+        site.addHeader("User-Agent","Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36");
+	    return site;
 	}
 
 	@Override
 	// process是定制爬虫逻辑的核心接口，在这里编写抽取逻辑
 	public void process(Page page) {
 
-		List list = page.getHtml().links().regex("https://www.eee276.com/htm/piclist\\d+/").all();
-		page.addTargetRequests(list);
-
-		//列表页
-        if(page.getUrl().regex("https://www.eee276.com/htm/piclist\\d+/").match()){
-            /*String title = page.getHtml().xpath("//div[@class='mainArea']/ul/li/a/text()").get();
-            System.out.println("title===========>"+title);*/
-            //获取分页
-            List<String> pageLinks = page.getHtml().xpath("//div[@class='pageList']/a/@href").all();
-            page.addTargetRequests(pageLinks);//把每页的数据加入
-
-            //获取列表url
-            List<String> all = page.getHtml().links().regex("https://www.eee276.com/htm/pic\\d+/\\d+.htm").all();
-            for(String s:all){
-                System.out.println("url = [" + s + "]");
+	    if(page.getUrl().regex("http://jandan.net/ooxx").match()) {
+            String maxpageNum = page.getHtml().xpath("//*[@class=\"comments\"]/div/span/text()").get();
+            int num = Integer.parseInt(maxpageNum.substring(maxpageNum.indexOf("[")+1, maxpageNum.lastIndexOf("]")));
+            for (int i = num; i > 0; i--) {
+                page.addTargetRequest("http://jandan.net/ooxx/page-" + i + "#comments");
             }
-            page.addTargetRequests(all);
         }
+
+        if(page.getUrl().regex("http://jandan.net/ooxx/page-\\d+#comments").match()){
+            String url = page.getHtml().xpath("//*[@class='text']/p/img/@src").get();
+            System.out.println("url="+url);
+        }
+
+
 
         //详情页
         if(page.getUrl().regex("https://www.eee276.com/htm/pic\\d+/\\d+.htm").match()){
@@ -82,7 +82,7 @@ public class ImageProcessor implements PageProcessor {
 		System.out.println("【爬虫开始】请耐心等待一大波数据到你碗里来...");
 		startTime = System.currentTimeMillis();
 		// 从用户博客首页开始抓，开启5个线程，启动爬虫
-		Spider.create(new ImageProcessor()).addUrl("https://www.eee208.com/htm/index.htm").thread(5).run();
+		Spider.create(new jiandanImageProcessor()).addUrl("http://jandan.net/ooxx").thread(5).run();
 		endTime = System.currentTimeMillis();
 		System.out.println("【爬虫结束】共抓取" + processNumber + "篇文章，耗时约" + ((endTime - startTime) / 1000) + "秒");
 	}
